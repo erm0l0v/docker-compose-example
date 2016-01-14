@@ -1,0 +1,25 @@
+rabbit:
+  image: rabbitmq:3
+app:
+  build: .
+  command: python myapp.py
+  volumes:
+    - ./app/:/app/
+  links:
+    - celery
+    - rabbit
+    - redis
+  ports:
+    - 8080:8080
+celery:
+  build: .
+  command: celery -A tasks worker --loglevel=info
+  volumes:
+    - ./app/:/app/
+  environment:
+    C_FORCE_ROOT: "True"
+  links:
+    - rabbit
+    - redis
+redis:
+    image: redis
